@@ -1,7 +1,7 @@
 import os
 import sys
 
-sys.path.append("/home/shansixioing/dos/")
+# sys.path.append("/home/shansixioing/dos/")
 import torch
 from PIL import Image
 import glob
