@@ -1,40 +1,41 @@
-# NIGHTSHADE
+# FYP_NIGHTSHADE
 
-This repo contains the research code release for Nightshade.
+This repo contains the research code for Nightshade by the University of Chicago, forked for my Final Year Project.
 
-:warning: If you plan to use Nightshade to protect your own copyrighted content, please use our MacOS/Windows prototype on our [webpage](https://nightshade.cs.uchicago.edu/downloads.html). For details on the differences, please checkout the FAQ below. 
-
-### OVERVIEW
+## OVERVIEW
 
 The repo contains code to generate Nightshade data for a source concept (e.g. "dog"). Specifically,
 
-1) The code first identify an optimal set of clean image/text pairs from a pool of clean data from the source concept. This step is designed to find a good set of text prompts to use for the poison. We select data from LAION dataset in our experiments (details in Section 5.2 of the paper).
-2) We optimize a perturbation on each of the selected candidate images.
+1) `data_extraction.py` first identifies an optimal set of clean image/text pairs from a pool of clean data from the source concept. This step is designed to find a good set of text prompts to use for the poison.
+2) `gen_poison.py` optimizes a perturbation on each of the selected candidate images.
 
 ### HOW TO
 
 #### Step 1: Candidate Data Selection
 
-We first extract a desired set of clean image/text pairs as the starting point of poison generation. Given a source concept (e.g. "dog"), you need to collect a large set (> 500) image/text pairs that contain the source concept (e.g. dog images with their corresponding text prompts). In the paper, we used images from LAION and ConceptualCaption dataset. If you do not have text prompts, you can use BLIP or similar techniques to generate the prompts or simply use "a photo of X" for the prompts.
+We first extract a desired set of clean image/text pairs as the starting point of poison generation. Given a source concept (e.g. "dog"), you need to collect a large set (> 500) image/text pairs that contain the source concept. If you do not have text prompts, you can use BLIP or similar techniques to generate the prompts or simply use "a photo of X" for the prompts.
 
-**Data format:** To better store longer prompts, we use pickle files for image/text pairs. Each pickle file contains a numpy image (key "img") and its corresponding text prompt (key "text"). You can download some example data from [here](https://mirror.cs.uchicago.edu/fawkes/files/resources/example-data.zip).
+**Data format:** To better store longer prompts, we use pickle files for image/text pairs. Each pickle file contains a numpy image (key "img") and its corresponding text prompt (key "text"). 
 
-Next, run `data_extraction.py` to select a set of 100 poison candidates. `python3 data_extraction.py --directory data/ --concept dog --num 100`
+Next, run `data_extraction.py` to select a set of 100 poison candidates. `python data_extraction.py --directory data/ --concept dog --num 100 --outdir selected_data/`
 
 #### Step 2: Poison Generation
 
-Next, we add perturbation to the images given a target concept (e.g. "cat"). `python3 data_extraction.py --directory selected_data/ --target_name cat --outdir OUTPUTDIR`. The code will output the perturbed images to the output folder.
+Next, we add perturbation to the images given a target concept (e.g. "cat"). `python gen_poison.py --directory selected_data/ --target_name cat --outdir poisoned_data/`. The code will output the perturbed images to the output folder.
 
-#### Requirements
-`torch=>2.0.0`, `diffusers>=0.20.0`
+#### Step 3: Data Processing
 
-### FAQ
+The tool I used to finetune a Stable Diffusion model was [EveryDream2trainer](https://github.com/victorchall/EveryDream2trainer). The paper said not to use LORA or dreambooth so this was the perfect tool to use, since its a general case fine tuner.
 
-#### How does this code differ from the APP on the Nightshade website?
-The goal of the code release is different from the Nightshade APP. This code base seeks to provide a reference, basic implementation for research experimentation whereas the APP is designed for people to nightshade their own images. As a result, there are two main differences. First, the Nightshade APP automatically extracts the source concept from a given image and selects a target concept for the image. This code base gives researchers the flexibility to select different poison target. Second, this code base uses Linf perturbation compared to LPIPS perturbation in the APP. Linf perturbation leads to more stable results but more visible perturbations.
+Their accepted data format is a jpg and txt file for the caption, so I had to write some code to process the pickle files to separate them into their corresponding image and txt files.
 
-#### How do I test Nightshade?
-The easiest way to train the model is to use latent diffusion [source code](https://github.com/CompVis/stable-diffusion). We do not recommend using the Dreambooth/LORA finetuning code as it is designed for small-scale finetuning rather than full model training.
+#### Step 4: Training the Model
+
+I transferred the dataset into the repository and ran `python train.py --config train.json`, your parameters may vary, but I used 80 epochs for 200-300 images.
+
+#### Step 5: Generating from the Poisoned Model
+
+I used [stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) to generate the images. After setting up, I downloaded the .safetensors file from EveryDream2trainer and dropped it into the `models/Stable-diffusion` folder. It also came with a clean SD 1.5 model for me to run control tests.
 
 ### Citation
 

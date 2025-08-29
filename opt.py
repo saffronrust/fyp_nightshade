@@ -95,6 +95,7 @@ class PoisonGeneration(object):
         for idx, image_f in enumerate(image_paths):
             cur_img = image_f.convert('RGB')
             perturbed_img = self.generate_one(cur_img, target_concept)
+            print("Finish poison image number {}".format(idx))
             res_imgs.append(perturbed_img)
         return res_imgs
 
