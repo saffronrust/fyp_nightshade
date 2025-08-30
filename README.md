@@ -1,10 +1,10 @@
 # FYP_NIGHTSHADE
 
-This repo contains the research code for Nightshade by the University of Chicago, forked for my Final Year Project.
+This repo contains the implementation of the Nightshade research code by the University of Chicago for my Final Year Project.
 
 ## OVERVIEW
 
-The repo contains code to generate Nightshade data for a source concept (e.g. "dog"). Specifically,
+The report contains code to implement Nightshade data for a source concept (e.g. "dog").
 
 1) `data_extraction.py` first identifies an optimal set of clean image/text pairs from a pool of clean data from the source concept. This step is designed to find a good set of text prompts to use for the poison.
 2) `gen_poison.py` optimizes a perturbation on each of the selected candidate images.
@@ -13,9 +13,9 @@ The repo contains code to generate Nightshade data for a source concept (e.g. "d
 
 #### Step 1: Candidate Data Selection
 
-We first extract a desired set of clean image/text pairs as the starting point of poison generation. Given a source concept (e.g. "dog"), you need to collect a large set (> 500) image/text pairs that contain the source concept. If you do not have text prompts, you can use BLIP or similar techniques to generate the prompts or simply use "a photo of X" for the prompts.
+First extract a desired set of clean image/text pairs as the starting point of poison generation. Given a source concept (e.g. "dog"), you need to collect a large set (> 500) image/text pairs that contain the source concept. If you do not have text prompts, you can use BLIP or similar techniques to generate the prompts or simply use "a photo of X" for the prompts.
 
-**Data format:** To better store longer prompts, we use pickle files for image/text pairs. Each pickle file contains a numpy image (key "img") and its corresponding text prompt (key "text"). 
+**Data format:** To better store longer prompts, pickle files are used for image/text pairs. Each pickle file contains a numpy image (key "img") and its corresponding text prompt (key "text"). 
 
 Next, run `data_extraction.py` to select a set of 100 poison candidates. `python data_extraction.py --directory data/ --concept dog --num 100 --outdir selected_data/`
 
@@ -25,13 +25,13 @@ Next, we add perturbation to the images given a target concept (e.g. "cat"). `py
 
 #### Step 3: Data Processing
 
-The tool I used to finetune a Stable Diffusion model was [EveryDream2trainer](https://github.com/victorchall/EveryDream2trainer). The paper said not to use LORA or dreambooth so this was the perfect tool to use, since its a general case fine tuner.
+The tool I used to finetune a Stable Diffusion model was [EveryDream2trainer](https://github.com/victorchall/EveryDream2trainer). The paper said not to use LORA or Dreambooth so this was the perfect tool to use, since its a general case fine tuner.
 
-Their accepted data format is a jpg and txt file for the caption, so I had to write some code to process the pickle files to separate them into their corresponding image and txt files.
+Their accepted data format is a jpg and txt file for the caption, so I had to write some code in `playground.ipynb` to process the pickle files to separate them into their corresponding image and txt files.
 
 #### Step 4: Training the Model
 
-I transferred the dataset into the repository and ran `python train.py --config train.json`, your parameters may vary, but I used 80 epochs for 200-300 images.
+I transferred the dataset into the EveryDream2trainer repository and ran `python train.py --config train.json`, your parameters may vary, but I used 120 epochs for 200-300 images.
 
 #### Step 5: Generating from the Poisoned Model
 
