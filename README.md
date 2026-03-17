@@ -1,13 +1,14 @@
 # fyp_nightshade
 
-This repo contains the implementation of the Nightshade research code by the University of Chicago for my Final Year Project.
+## Overview
+This repo contains my implementation of the Nightshade research code by the University of Chicago, the original repository can be found [here](https://github.com/Shawn-Shan/nightshade-release). This repository was created as part of my final year project on investigating data poisoning techniques on text-to-image models.
 
 ## Organisation of Repository
 
 ```
 fyp_nightshade/
 ├── 300_poisoned_dataset/       # Nightshaded dataset
-├── original_data/              # The original clean dataset, in .pickle format
+├── original_data/              # The original clean dataset, in .p format
 ├── original_extracted_data     # The original clean dataset in image-caption format
 ├── data_extraction.py          # Candidate data selection script
 ├── gen_poison.py               # Poison generation script
@@ -32,13 +33,11 @@ Next, we add perturbation to the images given a target concept (e.g. "cat"). `py
 
 ### Step 3: Data Processing
 
-The tool I used to finetune a Stable Diffusion model was [EveryDream2trainer](https://github.com/victorchall/EveryDream2trainer). The paper said not to use LORA or Dreambooth so this was the perfect tool to use, since its a general case fine tuner.
-
-Their accepted data format is a jpg and txt file for the caption, so I had to write some code in `playground.ipynb` to process the pickle files to separate them into their corresponding image and txt files.
+The tool I used to finetune a Stable Diffusion model was [EveryDream2trainer](https://github.com/victorchall/EveryDream2trainer). The researchers advised not to use LoRA or Dreambooth. EveryDream2Trainer is a general case fine tuner, hence it is appropriate.
 
 ### Step 4: Training the Model
 
-I transferred the dataset into the EveryDream2trainer repository and ran `python train.py --config train.json`, your parameters may vary, but I used 120 epochs for 200-300 images.
+I transferred the dataset into the EveryDream2trainer repository and ran `python train.py --config train.json`, your parameters may vary, but I used 100 epochs for 300 images.
 
 ### Step 5: Generating from the Poisoned Model
 
